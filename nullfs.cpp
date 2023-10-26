@@ -7,7 +7,7 @@
 */
 
 #define _FILE_OFFSET_BITS 64
-#define FUSE_USE_VERSION 26
+#define FUSE_USE_VERSION 30
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,7 +43,8 @@ static int nullfs_isfile(const char *path) {
     return (pos != files.end());
 };
 
-static int nullfs_getattr(const char *path, struct stat *stbuf) {
+static int nullfs_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi) {
+    (void) fi;
     int res = 0;
 
     memset(stbuf, 0, sizeof(struct stat));
@@ -62,15 +63,16 @@ static int nullfs_getattr(const char *path, struct stat *stbuf) {
 };
 
 static int nullfs_readdir(const char *path, void *buf, fuse_fill_dir_t
-filler, off_t offset, struct fuse_file_info *fi) {
+filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags rf) {
     (void) offset;
     (void) fi;
+    (void) rf;
 
     /*if (! nullfs_isdir(path)) return -ENOENT;*/
 
-    filler(buf, ".", NULL, 0);
-    filler(buf, "..", NULL, 0);
-    filler(buf, "foo", NULL, 0);
+    filler(buf, ".", NULL, 0, static_cast<fuse_fill_dir_flags>(0));
+    filler(buf, "..", NULL, 0, static_cast<fuse_fill_dir_flags>(0));
+    filler(buf, "foo", NULL, 0, static_cast<fuse_fill_dir_flags>(0));
 
     return 0;
 };
@@ -141,9 +143,10 @@ static int nullfs_unlink(const char *path) {
     return 0;
 };
 
-static int nullfs_rename(const char *src, const char *dst) {
+static int nullfs_rename(const char *src, const char *dst, unsigned int flags) {
     (void) src;
     (void) dst;
+    (void) flags;
 
     if (nullfs_isdir(src)) {
         dirs.erase(string(src));
@@ -158,16 +161,18 @@ static int nullfs_rename(const char *src, const char *dst) {
     return 0;
 };
 
-static int nullfs_truncate(const char *path, off_t o) {
+static int nullfs_truncate(const char *path, off_t o, struct fuse_file_info *fi) {
     (void) path;
     (void) o;
+    (void) fi;
 
     return 0;
 };
 
-static int nullfs_chmod(const char *path, mode_t m) {
+static int nullfs_chmod(const char *path, mode_t m, struct fuse_file_info *fi) {
     (void) path;
     (void) m;
+    (void) fi;
 
     return 0;
 };
@@ -181,9 +186,10 @@ static int nullfs_chmod(const char *path, mode_t m) {
 //     return 0;
 // };
 
-static int nullfs_utimens(const char *path, const struct timespec ts[2]) {
+static int nullfs_utimens(const char *path, const struct timespec ts[2], struct fuse_file_info *fi) {
     (void) path;
     (void) ts;
+    (void) fi;
 
     return 0;
 };
