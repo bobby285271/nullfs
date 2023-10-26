@@ -172,13 +172,14 @@ static int nullfs_chmod(const char *path, mode_t m) {
     return 0;
 };
 
-static int nullfs_chown(const char *path, uid_t u, gid_t g) {
-    (void) path;
-    (void) u;
-    (void) g;
+// Does not work yet.
+// static int nullfs_chown(const char *path, uid_t u, gid_t g) {
+//     (void) path;
+//     (void) u;
+//     (void) g;
 
-    return 0;
-};
+//     return 0;
+// };
 
 static int nullfs_utimens(const char *path, const struct timespec ts[2]) {
     (void) path;
